@@ -1,12 +1,11 @@
 import streamlit as st
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from gtts import gTTS
 import speech_recognition as sr
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
-# Initialize translator and recognizer
-translator = Translator()
+# Initialize recognizer
 r = sr.Recognizer()
 
 # Official Indian Languages + English
@@ -64,6 +63,7 @@ else:
 
 if st.session_state.demo_started:
     st.subheader("🌐 Select Languages")
+
     col1, col2 = st.columns(2)
     with col1:
         src_lang = st.selectbox("Source Language", options=language_options, index=language_options.index("English"))
@@ -71,33 +71,32 @@ if st.session_state.demo_started:
         dest_lang = st.selectbox("Target Language", options=language_options, index=language_options.index("Tamil"))
 
     st.write("### 🎤 Voice-to-Voice Translator")
-    st.write("Upload a WAV file of your voice to get translation.")
+    st.write("Upload a voice file (WAV) to get real-time translation.")
 
-    uploaded_audio = st.file_uploader("Upload WAV file", type=["wav"])
+    uploaded_audio = st.file_uploader("Upload a voice file (WAV format)", type=["wav"])
 
     if st.button("🎤 Translate Voice"):
         if uploaded_audio is None:
-            st.warning("Please upload a WAV file.")
+            st.warning("Please upload a WAV file with your voice.")
         else:
             try:
-                # Save uploaded file temporarily
+                # Recognize speech
                 with NamedTemporaryFile(delete=False) as tmp:
                     tmp.write(uploaded_audio.read())
                     tmp_path = tmp.name
 
-                # Recognize speech
                 with sr.AudioFile(tmp_path) as source:
                     audio_data = r.record(source)
                     speech_text = r.recognize_google(audio_data, language=indian_languages[src_lang])
 
                 st.text_area("Recognized Text:", value=speech_text, height=100)
 
-                # Translate text
-                translated = translator.translate(speech_text, src=indian_languages[src_lang], dest=indian_languages[dest_lang])
-                st.text_area("Translated Text:", value=translated.text, height=100)
+                # Translate using deep-translator
+                translated_text = GoogleTranslator(source=indian_languages[src_lang], target=indian_languages[dest_lang]).translate(speech_text)
+                st.text_area("Translated Text:", value=translated_text, height=100)
 
-                # Convert translation to speech
-                tts = gTTS(translated.text, lang=indian_languages[dest_lang])
+                # Convert to speech
+                tts = gTTS(translated_text, lang=indian_languages[dest_lang])
                 audio_bytes = BytesIO()
                 tts.write_to_fp(audio_bytes)
                 audio_bytes.seek(0)
