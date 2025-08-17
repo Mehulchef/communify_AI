@@ -3,6 +3,7 @@ SpeechRecognition
 googletrans==4.0.0-rc1
 gTTS
 playsound==1.2.2
-PyAudio 
+pyaudio
 python==3.10.0
+
 
