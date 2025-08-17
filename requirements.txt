@@ -1,6 +1,8 @@
-SpeechRecognition 
-googletrans==4.0.0-rc1 
-gTTS 
+streamlit==1.28.0
+SpeechRecognition
+googletrans==4.0.0-rc1
+gTTS
 playsound==1.2.2
-PyAudio
-streamlit
+PyAudio 
+python==3.10.0
+
