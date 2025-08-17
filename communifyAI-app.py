@@ -1,41 +1,12 @@
 import streamlit as st
-from deep_translator import GoogleTranslator
-from gtts import gTTS
-import speech_recognition as sr
-from io import BytesIO
-from tempfile import NamedTemporaryFile
-
-# Initialize recognizer
-r = sr.Recognizer()
 
 # Official Indian Languages + English
-indian_languages = {
-    "Assamese": "as",
-    "Bengali": "bn",
-    "Bodo": "brx",
-    "Dogri": "doi",
-    "Gujarati": "gu",
-    "Hindi": "hi",
-    "Kannada": "kn",
-    "Kashmiri": "ks",
-    "Konkani": "kok",
-    "Maithili": "mai",
-    "Malayalam": "ml",
-    "Manipuri": "mni",
-    "Marathi": "mr",
-    "Nepali": "ne",
-    "Odia": "or",
-    "Punjabi": "pa",
-    "Sanskrit": "sa",
-    "Santali": "sat",
-    "Sindhi": "sd",
-    "Tamil": "ta",
-    "Telugu": "te",
-    "Urdu": "ur",
-    "English": "en"
-}
-
-language_options = list(indian_languages.keys())
+language_options = [
+    "Assamese", "Bengali", "Bodo", "Dogri", "Gujarati", "Hindi", "Kannada",
+    "Kashmiri", "Konkani", "Maithili", "Malayalam", "Manipuri", "Marathi",
+    "Nepali", "Odia", "Punjabi", "Sanskrit", "Santali", "Sindhi", "Tamil",
+    "Telugu", "Urdu", "English"
+]
 
 # --- Page config ---
 st.set_page_config(page_title="Communify AI", layout="centered")
@@ -54,13 +25,14 @@ helping Indians connect, collaborate, and communicate seamlessly.
 
 st.info("Created by Mehul.k | mehulkrishieee@gmail.com")
 
-# Demo button
+# --- Demo button ---
 if st.button("▶ Start Demo"):
     st.session_state.demo_started = True
 else:
     if 'demo_started' not in st.session_state:
         st.session_state.demo_started = False
 
+# --- Language selection UI ---
 if st.session_state.demo_started:
     st.subheader("🌐 Select Languages")
 
@@ -71,36 +43,11 @@ if st.session_state.demo_started:
         dest_lang = st.selectbox("Target Language", options=language_options, index=language_options.index("Tamil"))
 
     st.write("### 🎤 Voice-to-Voice Translator")
-    st.write("Upload a voice file (WAV) to get real-time translation.")
+    st.write("Upload a voice file (WAV format) or click a button to record your voice.")
 
-    uploaded_audio = st.file_uploader("Upload a voice file (WAV format)", type=["wav"])
+    # --- Frontend placeholders ---
+    st.file_uploader("Upload a voice file (WAV format)", type=["wav"])
+    st.button("🎤 Translate Voice")
 
-    if st.button("🎤 Translate Voice"):
-        if uploaded_audio is None:
-            st.warning("Please upload a WAV file with your voice.")
-        else:
-            try:
-                # Recognize speech
-                with NamedTemporaryFile(delete=False) as tmp:
-                    tmp.write(uploaded_audio.read())
-                    tmp_path = tmp.name
-
-                with sr.AudioFile(tmp_path) as source:
-                    audio_data = r.record(source)
-                    speech_text = r.recognize_google(audio_data, language=indian_languages[src_lang])
-
-                st.text_area("Recognized Text:", value=speech_text, height=100)
-
-                # Translate using deep-translator
-                translated_text = GoogleTranslator(source=indian_languages[src_lang], target=indian_languages[dest_lang]).translate(speech_text)
-                st.text_area("Translated Text:", value=translated_text, height=100)
-
-                # Convert to speech
-                tts = gTTS(translated_text, lang=indian_languages[dest_lang])
-                audio_bytes = BytesIO()
-                tts.write_to_fp(audio_bytes)
-                audio_bytes.seek(0)
-
-                st.audio(audio_bytes, format="audio/mp3")
-            except Exception as e:
-                st.error(f"Error: {e}")
+    st.text_area("Recognized Text:", value="", height=100)
+    st.text_area("Translated Text:", value="", height=100)
